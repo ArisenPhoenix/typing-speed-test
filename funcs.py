@@ -5,9 +5,6 @@ from gui import *
 # Wrapping the non missing value with () to show that it wasn't in the typed version.
 
 
-
-
-
 def switch(v1, v2):
     a = v2
     v2 = v1
@@ -36,7 +33,6 @@ def calculate_errors(p1, p2):
                 indexes_wrong.append(word)
         except IndexError:
             pass
-    # print("wrong locations: ", indexes_wrong)
     
     word_list = []
     for index in indexes_wrong:
@@ -52,7 +48,6 @@ def calculate_errors(p1, p2):
         
         for letter in range(len(p1[index])):
             orig = p1[index][letter]
-            bad = ""
             try:
                 bad = p2[index][letter]
                 if orig == bad:
@@ -65,14 +60,11 @@ def calculate_errors(p1, p2):
     total_errors = 0
     for word in word_list:
         total_errors += word["errors"]
-    # response = {"errors": total_errors}
     return total_errors + starting_errors
 
 
 def typing_accuracy(paragraph, copy, response):
-    # paragraph_copy = input(paragraph + "\n")
     typed = copy.split(" ")
-    # response = num_mistakes(paragraph, paragraph_copy)
     response["errors"] = calculate_errors(paragraph, copy)
     p1_len = len(paragraph)
     p2_len = len(copy)
@@ -176,7 +168,6 @@ def format_sentences(words, label_master, font):
     full = ""
     for phrase in words:
         full += phrase
-        # display_widget = Display(frame, text=phrase, fg="white")
         display_widget = Display(label_master, text=phrase, fg="white")
         display_widget.configure(anchor="nw", justify="left", font=font)
         listed.append(display_widget)

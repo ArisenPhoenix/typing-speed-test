@@ -2,20 +2,13 @@ from funcs import *
 from gui import *
 import time
 
-PINK = "#e2979c"
-RED = "#e7305b"
-GREEN = "#9bdeac"
-YELLOW = "#f7f5dd"
-time_passed = 0
-sec = 0
-entry_list = []
+p1 = "Sally sells seashells by the sea shore."
+p2 = "You will face many defeats in life, but never let yourself be defeated."
+p_list = [p1, p2]
+widget_list = []
 
 
-
-
-
-# p = "Sally sells seashells by the sea shore."
-p = "You will face many defeats in life, but never let yourself be defeated."
+        
 root = Window(title="Hello")
 FONT = Font(family="Calibri", size=30)
 
@@ -24,13 +17,18 @@ frame.configure(width=300)
 frame.grid(row=0, column=0, sticky=(N, S, W, E))
 frame.columnconfigure((0, 1, 2, 3, 4, 5), weight=1, minsize=30)
 frame.rowconfigure((0, 1, 2, 3, 4, 5, 6), weight=1, minsize=30)
-
+widget_list.append(frame)
 timer = None
 time_elapsed = 0
 s = 0
 e = 0
 time_ended = False
 
+
+def destroy_widgets(w_list: list):
+    for w in w_list:
+        w.destroy()
+        
 
 def start_time():
     global s
@@ -76,15 +74,14 @@ def begin_practice():
     entry = StringVar()
     
     def continue_to_results(event):
+        global e, s
         some = [event]
         del some[0]
-        
-        global e, s
         end_time()
         duration = e - s
         response = {"time": duration}
         text = entry.get()
-        entry_list.append(text)
+        # entry_list.append(text)
         response = commence(p, text, response)
         determine_values(response)
     
