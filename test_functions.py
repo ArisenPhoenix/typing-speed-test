@@ -1,5 +1,5 @@
 from funcs import *
-from gui import *
+from gui_pieces import *
 import time
 
 p1 = "Sally sells seashells by the sea shore."

@@ -1,140 +1,166 @@
-from tkinter import *
-from tkinter import font
-
-MAIN_BACK = "black"
-SECONDARY_BACK = "white"
-TERTIARY_BACK = "red"
-FULL_SCREEN_WIDTH = 65
+from gui_pieces import  *
+import time
 
 
-class Theme:
-    def __init__(self):
-        self.BG_Primary = MAIN_BACK
-        self.BG_Secondary = SECONDARY_BACK
-        self.BG_Tertiary = TERTIARY_BACK
-        self.FG_Primary = MAIN_BACK
-        self.FG_Secondary = SECONDARY_BACK
-        self.FG_Tertiary = TERTIARY_BACK
-        self.GEO_X = 1400
-        self.GEO_Y = 900
-        self.Width = 1400 / 10
-        self.Height = 900 / 10
-    
-    def update(self, bgp: str = None, bgs: str = None, bgt: str = None, fgp: str = None,
-               fgs: str = None, fgt: str = None, geox: str = None, geoy: str = None, x: int = None, y: int = None):
-        if bgp:
-            self.BG_Primary = bgp
-        if bgs:
-            self.BG_Secondary = bgs
-        if bgt:
-            self.BG_Tertiary = bgt
-        if fgp:
-            self.FG_Primary = fgp
-        if fgs:
-            self.FG_Secondary = fgs
-        if fgt:
-            self.FG_Tertiary = fgt
-        if geox:
-            self.GEO_X = geox
-        if geoy:
-            self.GEO_Y = geoy
-        if x:
-            self.Width = x
-        if y:
-            self.Height = y
-        
-
-class Font(font.Font):
-    def __init__(self, family="Calibri", size=20, slant="roman"):
-        super().__init__(family=family, size=size, slant=slant)
-        self.family = family
-        self.size = size
-        self.slant = slant
-    
-    def update(self, family=None, size=None, slant=None):
-        if family is None:
-            self.family = family
-        if size is None:
-            self.size = size
-        if slant is None:
-            self.slant = slant
-
-
-class Window(Tk):
+class Gui(Window):
     def __init__(self, title: str, geox: str = "1400", geoy: str = "900", resize_x: bool = True, resize_y: bool = True):
-        super().__init__()
-        self.title(title)
-        self.current_x = geox
-        self.current_y = geoy
-        self.geometry(f"{self.current_x}x{self.current_y}")
-        self.resizable(resize_x, resize_y)
-        padx = 30
-        pady=10
-        self.configure(background=MAIN_BACK, highlightbackground=MAIN_BACK,
-                       padx=(padx), pady=(pady))
+        super().__init__(title, geox, geox, resize_x, resize_y)
+        self.frame_master = 0
+        self.title = title
+        self.geox = geox
+        self.geoy = geoy
+        self.resize_x = resize_x
+        self.resize_y = resize_y
+        self.frame_list = List()
+        self.type_list = List()
+        self.display_list = List()
+        self.master_list = List()
+        self.button_list = List()
+        self.all_lists = List()
+        self.start_time = 0
+        self.end_time = 0
+        self.total_time = 0
+        
+    def make_display(self, text, abg: str = MAIN_BACK, bg: str = MAIN_BACK,
+                 height: int = 1, width: int = FULL_SCREEN_WIDTH, fg: str = "white"):
+        new_display = Display(self, text, abg=abg, bg=bg,
+                 height=height, width=width, fg=fg)
+        new_display.configure(anchor="w")
+        self.display_list.append(new_display)
+        self.master_list.append(new_display)
+        return new_display
     
-    def get_dims(self):
-        return self.current_x, self.current_y
         
+    def make_typer(self, font, fg: str = MAIN_BACK, bg: str = SECONDARY_BACK, width: int = FULL_SCREEN_WIDTH ):
+        new_typer = Type(self, font, fg, bg, width)
+        self.type_list.append(new_typer)
+        self.master_list.append(new_typer)
+        new_typer.font.update(size=40)
+        return new_typer
+
         
-class Frame(Frame):
-    def __init__(self, master, fg: str = "green", bg: str = "green"):
-        x, y = Window.get_dims(master)
-        super().__init__(master)
-        self.master = master
-        self.fg = fg
-        self.bg = bg
-        self.configure(width=x, height=y, background=bg, highlightbackground=fg,
-                       padx=(10), pady=(10))
-
-
-class Display(Label):
-    def __init__(self, master, text, abg: str = MAIN_BACK, bg: str = MAIN_BACK,
-                 height: int = None, width: int = FULL_SCREEN_WIDTH, fg: str = "Black"):
-        super().__init__(master)
-        self.font = Font
-        self.master = master
-        self.text = text
-        self.abg = abg
-        self.bg = bg
-        self.height = height
-        self.width = width
-        self.fg = fg
-        self.configure(text=self.text, activebackground=self.abg,
-                       background=self.bg, height=self.height, width=self.width, foreground=self.fg, font=self.font())
-
-
-class Type(Entry):
-    def __init__(self, master, font, fg: str = MAIN_BACK, bg: str = SECONDARY_BACK, width: int = FULL_SCREEN_WIDTH):
-        super().__init__(master)
-        self.master = master
-        self.font = font
-        self.fg = fg
-        self.bg = bg
-        self.width = width
-        self.configure(font=self.font, foreground=self.fg, width=self.width, background=self.bg)
-        self.input = ""
+    def make_frame(self, **kwargs):
+        new_frame = Frame(self, **kwargs)
+        self.frame_list.append(new_frame)
+        self.master_list.append(new_frame)
+        self.frame_master = new_frame
+        return new_frame
     
-    def set_save_key(self, key, func=None):
-        def save_input(data):
-            print("data: ", data)
-            return self
-        if func is None:
-            func = save_input
-        self.bind(key, func)
+    
+    def make_button(self, text, cmd):
+        new_button = Press(master=self.frame_master, text=text, cmd=cmd)
+        self.button_list.append(new_button)
+        self.master_list.append(new_button)
+        return new_button
+    
+    def create_typer_list(self, number):
+        variable_list = List()
+        print("variable_list: ", variable_list)
+        for i in range(number):
+            variable = StringVar()
+            typer_widget = Type(self.frame_master, variable, fg=SECONDARY_BACK, bg=MAIN_BACK)
+            variable_list.append(variable)
+            typer_widget.configure( justify="left", width=FULL_SCREEN_WIDTH)
+            # if i == 0:
+            #     typer_widget.focus()
+            self.type_list.append(typer_widget)
+            self.master_list.append(typer_widget)
+        return self.type_list, variable_list
+    
+    def create_display_list(self, list_of_individual_phrases):
+        for phrase in list_of_individual_phrases:
+            display_widget = Display(self.frame_master, text=phrase, fg="white")
+            display_widget.configure(anchor="nw", justify="left")
+            self.display_list.append(display_widget)
+            self.master_list.append(display_widget)
+        return self.display_list
+        
+    def make_group(self, this_list = None, number=None, type=None):
+        """ list_of_types = ["frame", "typer",  "display"]"""
+        data_type = this_list
+        if not this_list:
+            data_type = number
+        if type == "frame":
+            create = self.make_frame
+        elif type == "typer":
+            return self.create_typer_list(data_type)
+        elif type == "display":
+            return self.create_display_list(this_list)
+        else:
+            return TypeError("That is not a valid Gui Type")
+        self.loop(cb=create,  this_list=data_type)
+        if type == "frame":
+            return self.frame_list
         
         
-class Press(Button):
-    @staticmethod
-    def click_me():
-        print("make a new function")
+    def make_object_group(self, object):
+        keys = object.keys()
+        for key in keys:
+            text = f"{key}:      {object[key]}"
+            display_widget = Display(self.frame_master, text=text, fg="white")
+            display_widget.configure(anchor="nw", justify="left")
+            self.display_list.append(display_widget)
+            self.master_list.append(display_widget)
+        return self.display_list
         
-    def __init__(self, master,  text, bg=SECONDARY_BACK, fg=SECONDARY_BACK, x=5, y=2, cmd=click_me):
-        super().__init__(master, text=text, font=Font, command=cmd)
-        self.text = text
-        self.bg = bg
-        self.fg = fg
-        self.width = x
-        self.height = y
-        self.cmd = cmd
-        self.configure(width=self.width, height=self.height)
+    def loop(self,cb, number=None, this_list=None):
+        items = this_list
+        if number:
+            items = number
+            for _ in range(items):
+                    cb()
+        else:
+            for item in items:
+                cb(item)
+                
+    def get_start_time(self):
+        self.start_time = time.time()
+        return self.start_time
+        
+    def get_end_time(self):
+        self.end_time = time.time()
+        return self.end_time
+        
+    def get_total_time(self):
+        self.total_time = self.end_time - self.start_time
+        return self.total_time
+    
+    
+    def destroy_all_lists(self):
+        self.all_lists.append(self.frame_list)
+        self.all_lists.append(self.display_list)
+        self.all_lists.append(self.type_list )
+        self.all_lists.append(self.master_list)
+        self.all_lists.append(self.button_list)
+        for a_list in self.all_lists:
+            for item in a_list:
+                item.destroy()
+        self.frame_list = List()
+        self.type_list = List()
+        self.master_list = List()
+        self.display_list = List()
+        self.button_list = List()
+        self.all_lists = List()
+        
+        # TODO: FIX THIS PUSH ENTER PROBLEM It Likes To Automatically Go To The Last Enter
+    def bind_typers(self, continue_to_results_handler):
+        print("self.type_list.num(): ", self.type_list.num())
+        for item in range(len(self.type_list)):
+            typer = self.type_list[item]
+
+            def focus_handler(event):
+                event.widget.tk_focusNext().focus()
+                return ("break")
+                
+            if item <self.type_list.num() - 1:
+                if item == 0:
+                    typer.focus()
+                    typer.bind("<Return>", focus_handler)
+                else:
+                    typer.bind("<Return>", focus_handler)
+            else:
+                print("item === len(list)", self.type_list.num()-1)
+                typer.bind("<Return>", continue_to_results_handler)
+                self.get_start_time()
+                
+            
